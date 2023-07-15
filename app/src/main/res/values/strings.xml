@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">Module_3_Lesson_5_hw_3_Compose</string>
+    <string name="main_header">The Clickerman</string>
+    <string name="main_title">Tap as fast as you can and make sure you can reach to the stars.\nIT\'S DARE!</string>
+    <string name="button_new_challenge">New Challenge</string>
+    <string name="button_records">The Hall of Records</string>
+    <string name="button_about">About</string>
+    <string name="button_sprint">Sprint</string>
+    <string name="button_medium">Medium</string>
+    <string name="button_marathon">Marathon</string>
+    <string name="button_start">Start</string>
+</resources>
