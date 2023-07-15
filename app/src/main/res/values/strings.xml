@@ -5,9 +5,9 @@
     <string name="button_new_challenge">New Challenge</string>
     <string name="button_records">The Hall of Records</string>
     <string name="button_about">About</string>
-    <string name="button_sprint">Sprint</string>
-    <string name="button_medium">Medium</string>
-    <string name="button_marathon">Marathon</string>
+    <string name="button_sprint">Sprint | 10 sec</string>
+    <string name="button_medium">Medium | 20 sec</string>
+    <string name="button_marathon">Marathon | 30 sec</string>
     <string name="button_start">Start</string>
     <string name="ready">READY</string>
     <string name="steady">STEADY</string>

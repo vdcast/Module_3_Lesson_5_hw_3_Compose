@@ -29,6 +29,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.module_3_lesson_5_hw_3_compose.ui.theme.Yellow10
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -40,7 +41,6 @@ fun MyApp(
     appViewModel: AppViewModel = viewModel()
 ) {
     val navController = rememberNavController()
-
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -161,7 +161,37 @@ fun NewChallengeScreen(
 ) {
     var selectedChallenge by remember { mutableStateOf(Challenge.SPRINT) }
 
-    Text(text = "new challenge screen")
+
+    // delete after test
+    val prefs = SharedPrefs(LocalContext.current)
+    Row() {
+        Spacer(modifier = Modifier.width(dimensionResource(id = R.dimen.padding_medium)))
+        Column() {
+            Text(text = prefs.getRecordSprintOne().toString())
+            Text(text = prefs.getRecordSprintTwo().toString())
+            Text(text = prefs.getRecordSprintThree().toString())
+            Text(text = prefs.getRecordSprintFour().toString())
+            Text(text = prefs.getRecordSprintFive().toString())
+        }
+        Spacer(modifier = Modifier.width(dimensionResource(id = R.dimen.padding_medium)))
+        Column() {
+            Text(text = prefs.getRecordMediumOne().toString())
+            Text(text = prefs.getRecordMediumTwo().toString())
+            Text(text = prefs.getRecordMediumThree().toString())
+            Text(text = prefs.getRecordMediumFour().toString())
+            Text(text = prefs.getRecordMediumFive().toString())
+        }
+        Spacer(modifier = Modifier.width(dimensionResource(id = R.dimen.padding_medium)))
+        Column() {
+            Text(text = prefs.getRecordMarathonOne().toString())
+            Text(text = prefs.getRecordMarathonTwo().toString())
+            Text(text = prefs.getRecordMarathonThree().toString())
+            Text(text = prefs.getRecordMarathonFour().toString())
+            Text(text = prefs.getRecordMarathonFive().toString())
+        }
+    }
+    // delete after test
+
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -220,12 +250,45 @@ fun ChallengeScreen(
 ) {
     val appUiState by appViewModel.uiState.collectAsState()
 
+    val prefs = SharedPrefs(LocalContext.current)
+
+    if (appUiState.gameCompleted) {
+        if (appUiState.currentGame == "Sprint") {
+            if (appUiState.clickCount > prefs.getRecordSprintOne()) {
+                prefs.setRecordSprintFive(prefs.getRecordSprintFour())
+                prefs.setRecordSprintFour(prefs.getRecordSprintThree())
+                prefs.setRecordSprintThree(prefs.getRecordSprintTwo())
+                prefs.setRecordSprintTwo(prefs.getRecordSprintOne())
+                prefs.setRecordSprintOne(appUiState.clickCount)
+            }
+        }
+        if (appUiState.currentGame == "Medium") {
+            if (appUiState.clickCount > prefs.getRecordMediumOne()) {
+                prefs.setRecordMediumFive(prefs.getRecordMediumFour())
+                prefs.setRecordMediumFour(prefs.getRecordMediumThree())
+                prefs.setRecordMediumThree(prefs.getRecordMediumTwo())
+                prefs.setRecordMediumTwo(prefs.getRecordMediumOne())
+                prefs.setRecordMediumOne(appUiState.clickCount)
+            }
+        }
+        if (appUiState.currentGame == "Marathon") {
+            if (appUiState.clickCount > prefs.getRecordMarathonOne()) {
+                prefs.setRecordMarathonFive(prefs.getRecordMarathonFour())
+                prefs.setRecordMarathonFour(prefs.getRecordMarathonThree())
+                prefs.setRecordMarathonThree(prefs.getRecordMarathonTwo())
+                prefs.setRecordMarathonTwo(prefs.getRecordMarathonOne())
+                prefs.setRecordMarathonOne(appUiState.clickCount)
+            }
+        }
+    }
+
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
         Text(text = "challenge screen")
+        Text(text = appUiState.currentGame)
         Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_medium)))
         Text(
             text = stringResource(id = appUiState.preStartTimerWords)

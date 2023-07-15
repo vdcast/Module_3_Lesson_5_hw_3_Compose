@@ -1,5 +1,6 @@
 package com.example.module_3_lesson_5_hw_3_compose
 
+import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import io.reactivex.Flowable
@@ -12,7 +13,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import java.util.concurrent.TimeUnit
 
-class AppViewModel: ViewModel() {
+class AppViewModel() : ViewModel() {
     private val _uiState = MutableStateFlow(AppUiState())
     val uiState: StateFlow<AppUiState> = _uiState.asStateFlow()
 
@@ -42,13 +43,15 @@ class AppViewModel: ViewModel() {
                 _uiState.update { currentState ->
                     currentState.copy(
                         preStartTimerWords = preStartTimerWords,
-                        timerSeconds = until
+                        timerSeconds = until,
+                        currentGame =
+                        if (until == 10L) "Sprint" else if (until == 20L) "Medium" else "Marathon"
                     )
                 }
                 Log.d("MYLOG", "preStart timer : $remainingSeconds")
             }
 
-            override fun onError(t: Throwable?) {  }
+            override fun onError(t: Throwable?) {}
             override fun onComplete() {
                 Log.d("MYLOG", "preStart DONE :)")
             }
@@ -70,15 +73,20 @@ class AppViewModel: ViewModel() {
                 _uiState.update { currentState ->
                     currentState.copy(timerSeconds = remainingSeconds)
                 }
+
+
                 Log.d("MYLOG", "main timer : $remainingSeconds")
             }
 
-            override fun onError(t: Throwable?) {  }
+            override fun onError(t: Throwable?) {}
             override fun onComplete() {
                 Log.d("MYLOG", "main timer DONE :)")
                 stopTimer()
                 _uiState.update { currentState ->
-                    currentState.copy(clickCountEnabled = false)
+                    currentState.copy(
+                        clickCountEnabled = false,
+                        gameCompleted = true
+                    )
                 }
             }
 
@@ -88,6 +96,7 @@ class AppViewModel: ViewModel() {
             .subscribeOn(AndroidSchedulers.mainThread())
             .subscribe(timer)
     }
+
 
     private fun stopTimer() {
         if (::timer.isInitialized) {
@@ -110,5 +119,11 @@ class AppViewModel: ViewModel() {
             clickCountEnabled = false
         )
     }
+
+//    fun gameCompletedReset() {
+//        _uiState.update { currentState ->
+//            currentState.copy()
+//        }
+//    }
 
 }
