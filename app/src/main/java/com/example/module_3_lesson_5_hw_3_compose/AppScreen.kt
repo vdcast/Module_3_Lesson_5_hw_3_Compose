@@ -92,7 +92,6 @@ fun MainScreen(
 ) {
 
 
-
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -182,7 +181,7 @@ fun NewChallengeScreen(
                     onClick = { selectedChallenge = challenge }
                 )
                 Text(
-                    text = when(challenge) {
+                    text = when (challenge) {
                         Challenge.SPRINT -> stringResource(id = R.string.button_sprint)
                         Challenge.MEDIUM -> stringResource(id = R.string.button_medium)
                         Challenge.MARATHON -> stringResource(id = R.string.button_marathon)
@@ -195,9 +194,17 @@ fun NewChallengeScreen(
             modifier = Modifier.fillMaxWidth(0.6f),
             onClick = {
                 when (selectedChallenge) {
-                    Challenge.SPRINT -> { appViewModel.preStartTimer(10L) }
-                    Challenge.MEDIUM -> { appViewModel.preStartTimer(20L) }
-                    Challenge.MARATHON -> { appViewModel.preStartTimer(30L) }
+                    Challenge.SPRINT -> {
+                        appViewModel.preStartTimer(10L)
+                    }
+
+                    Challenge.MEDIUM -> {
+                        appViewModel.preStartTimer(20L)
+                    }
+
+                    Challenge.MARATHON -> {
+                        appViewModel.preStartTimer(30L)
+                    }
                 }
                 onStartClicked()
             }
@@ -234,7 +241,11 @@ fun ChallengeScreen(
         Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_medium)))
         Text(
             modifier = Modifier
-                .clickable { appViewModel.onScreenClicked() },
+                .clickable {
+                    if (appUiState.clickCountEnabled) {
+                        appViewModel.onScreenClicked()
+                    }
+                },
             text = "CLICK ME"
         )
     }

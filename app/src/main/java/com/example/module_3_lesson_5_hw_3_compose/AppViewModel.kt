@@ -19,6 +19,8 @@ class AppViewModel: ViewModel() {
     private lateinit var timer: DisposableSubscriber<Long>
 
     fun preStartTimer(until: Long) {
+        resetGame()
+
         timer = object : DisposableSubscriber<Long>() {
             override fun onNext(t: Long?) {
                 var remainingSeconds = 0L
@@ -32,12 +34,17 @@ class AppViewModel: ViewModel() {
                     1L -> {
                         preStartTimerWords = R.string.go
                         startGameTimer(until = until)
+                        _uiState.update { currentState ->
+                            currentState.copy(clickCountEnabled = true)
+                        }
                     }
                 }
-                _uiState.value = AppUiState(
-                    preStartTimerWords = preStartTimerWords,
-                    timerSeconds = until
-                )
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        preStartTimerWords = preStartTimerWords,
+                        timerSeconds = until
+                    )
+                }
                 Log.d("MYLOG", "preStart timer : $remainingSeconds")
             }
 
@@ -70,6 +77,9 @@ class AppViewModel: ViewModel() {
             override fun onComplete() {
                 Log.d("MYLOG", "main timer DONE :)")
                 stopTimer()
+                _uiState.update { currentState ->
+                    currentState.copy(clickCountEnabled = false)
+                }
             }
 
         }
@@ -89,6 +99,16 @@ class AppViewModel: ViewModel() {
         _uiState.update { currentState ->
             currentState.copy(clickCount = currentState.clickCount + 1)
         }
+    }
+
+    private fun resetGame() {
+        stopTimer()
+        _uiState.value = AppUiState(
+            timerSeconds = 0L,
+            preStartTimerWords = R.string.empty,
+            clickCount = 0,
+            clickCountEnabled = false
+        )
     }
 
 }
