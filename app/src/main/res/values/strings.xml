@@ -9,4 +9,8 @@
     <string name="button_medium">Medium</string>
     <string name="button_marathon">Marathon</string>
     <string name="button_start">Start</string>
+    <string name="ready">READY</string>
+    <string name="steady">STEADY</string>
+    <string name="go">GO</string>
+    <string name="empty"></string>
 </resources>

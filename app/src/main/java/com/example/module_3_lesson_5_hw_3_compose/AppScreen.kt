@@ -16,6 +16,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -32,9 +33,12 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
-fun MyApp() {
+fun MyApp(
+    appViewModel: AppViewModel = viewModel()
+) {
     val navController = rememberNavController()
 
     Box(
@@ -60,10 +64,15 @@ fun MyApp() {
                 )
             }
             composable(ScreenRoutes.NewChallengeScreen.route) {
-                NewChallengeScreen()
+                NewChallengeScreen(
+                    appViewModel = appViewModel,
+                    onStartClicked = {
+                        navController.navigate(ScreenRoutes.ChallengeScreen.route)
+                    }
+                )
             }
             composable(ScreenRoutes.ChallengeScreen.route) {
-                ChallengeScreen()
+                ChallengeScreen(appViewModel = appViewModel)
             }
             composable(ScreenRoutes.RecordsScreen.route) {
                 RecordsScreen()
@@ -147,7 +156,10 @@ fun MainScreen(
 }
 
 @Composable
-fun NewChallengeScreen() {
+fun NewChallengeScreen(
+    appViewModel: AppViewModel,
+    onStartClicked: () -> Unit
+) {
     var selectedChallenge by remember { mutableStateOf(Challenge.SPRINT) }
 
     Text(text = "new challenge screen")
@@ -183,10 +195,11 @@ fun NewChallengeScreen() {
             modifier = Modifier.fillMaxWidth(0.6f),
             onClick = {
                 when (selectedChallenge) {
-                    Challenge.SPRINT -> {}
-                    Challenge.MEDIUM -> {}
-                    Challenge.MARATHON -> {}
+                    Challenge.SPRINT -> { appViewModel.preStartTimer(10L) }
+                    Challenge.MEDIUM -> { appViewModel.preStartTimer(20L) }
+                    Challenge.MARATHON -> { appViewModel.preStartTimer(30L) }
                 }
+                onStartClicked()
             }
         ) {
             Text(text = stringResource(id = R.string.button_start))
@@ -195,8 +208,36 @@ fun NewChallengeScreen() {
 }
 
 @Composable
-fun ChallengeScreen() {
-    Text(text = "challenge screen")
+fun ChallengeScreen(
+    appViewModel: AppViewModel
+) {
+    val appUiState by appViewModel.uiState.collectAsState()
+
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text(text = "challenge screen")
+        Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_medium)))
+        Text(
+            text = stringResource(id = appUiState.preStartTimerWords)
+        )
+        Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_medium)))
+        Text(
+            text = appUiState.timerSeconds.toString()
+        )
+        Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_medium)))
+        Text(
+            text = appUiState.clickCount.toString()
+        )
+        Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_medium)))
+        Text(
+            modifier = Modifier
+                .clickable { appViewModel.onScreenClicked() },
+            text = "CLICK ME"
+        )
+    }
 }
 
 @Composable
