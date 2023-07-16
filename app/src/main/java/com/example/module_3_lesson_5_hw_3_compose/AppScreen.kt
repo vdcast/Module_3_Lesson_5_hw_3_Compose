@@ -7,13 +7,17 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -36,6 +40,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.module_3_lesson_5_hw_3_compose.ui.theme.Yellow20
 
 @Composable
 fun MyApp(
@@ -76,7 +81,10 @@ fun MyApp(
                 ChallengeScreen(
                     appViewModel = appViewModel,
                     onOkClicked = {
-                        navController.navigate(ScreenRoutes.NewChallengeScreen.route)
+                        navController.popBackStack(
+                            route = ScreenRoutes.NewChallengeScreen.route,
+                            inclusive = false
+                        )
                     }
                 )
             }
@@ -96,8 +104,6 @@ fun MainScreen(
     onRecordsClicked: () -> Unit,
     onAboutClicked: () -> Unit
 ) {
-
-
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -156,7 +162,6 @@ fun MainScreen(
                 Text(text = stringResource(id = R.string.button_about))
             }
         }
-
     }
 }
 
@@ -167,43 +172,19 @@ fun NewChallengeScreen(
 ) {
     var selectedChallenge by remember { mutableStateOf(Challenge.SPRINT) }
 
-
-    // delete after test
-    val prefs = SharedPrefs(LocalContext.current)
-    Row() {
-        Spacer(modifier = Modifier.width(dimensionResource(id = R.dimen.padding_medium)))
-        Column() {
-            Text(text = prefs.getRecordSprintOne().toString())
-            Text(text = prefs.getRecordSprintTwo().toString())
-            Text(text = prefs.getRecordSprintThree().toString())
-            Text(text = prefs.getRecordSprintFour().toString())
-            Text(text = prefs.getRecordSprintFive().toString())
-        }
-        Spacer(modifier = Modifier.width(dimensionResource(id = R.dimen.padding_medium)))
-        Column() {
-            Text(text = prefs.getRecordMediumOne().toString())
-            Text(text = prefs.getRecordMediumTwo().toString())
-            Text(text = prefs.getRecordMediumThree().toString())
-            Text(text = prefs.getRecordMediumFour().toString())
-            Text(text = prefs.getRecordMediumFive().toString())
-        }
-        Spacer(modifier = Modifier.width(dimensionResource(id = R.dimen.padding_medium)))
-        Column() {
-            Text(text = prefs.getRecordMarathonOne().toString())
-            Text(text = prefs.getRecordMarathonTwo().toString())
-            Text(text = prefs.getRecordMarathonThree().toString())
-            Text(text = prefs.getRecordMarathonFour().toString())
-            Text(text = prefs.getRecordMarathonFive().toString())
-        }
-    }
-    // delete after test
-
-
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
+        Text(
+            text = stringResource(id = R.string.new_challenge_title),
+            textAlign = TextAlign.Center,
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold,
+            fontFamily = FontFamily.Monospace
+        )
+        Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_medium)))
         Challenge.values().forEach { challenge ->
             Row(
                 modifier = Modifier
@@ -225,22 +206,14 @@ fun NewChallengeScreen(
                 )
             }
         }
-        Spacer(modifier = Modifier.width(dimensionResource(id = R.dimen.padding_medium)))
+        Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_medium)))
         Button(
             modifier = Modifier.fillMaxWidth(0.6f),
             onClick = {
                 when (selectedChallenge) {
-                    Challenge.SPRINT -> {
-                        appViewModel.preStartTimer(10L)
-                    }
-
-                    Challenge.MEDIUM -> {
-                        appViewModel.preStartTimer(20L)
-                    }
-
-                    Challenge.MARATHON -> {
-                        appViewModel.preStartTimer(30L)
-                    }
+                    Challenge.SPRINT -> { appViewModel.preStartTimer(10L) }
+                    Challenge.MEDIUM -> { appViewModel.preStartTimer(20L) }
+                    Challenge.MARATHON -> { appViewModel.preStartTimer(30L) }
                 }
                 onStartClicked()
             }
@@ -250,21 +223,81 @@ fun NewChallengeScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChallengeScreen(
     appViewModel: AppViewModel,
     onOkClicked: () -> Unit
 ) {
     val appUiState by appViewModel.uiState.collectAsState()
-
     val prefs = SharedPrefs(LocalContext.current)
 
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text(
+            text = appUiState.currentGame,
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold,
+            fontFamily = FontFamily.Monospace
+        )
+        Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_medium)))
+        Text(
+            text = stringResource(id = appUiState.preStartTimerWords),
+            fontSize = 22.sp,
+            fontWeight = FontWeight.Bold,
+            fontFamily = FontFamily.Monospace
+        )
+        Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_medium)))
+        Row(
+            modifier = Modifier.fillMaxWidth(0.75f),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceAround
+        ) {
+            Text(
+                text = stringResource(id = R.string.challenge_time, appUiState.timerSeconds.toString()),
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                fontFamily = FontFamily.Monospace
+            )
+            Text(
+                text = stringResource(id = R.string.challenge_score, appUiState.clickCount.toString()),
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                fontFamily = FontFamily.Monospace
+            )
+        }
+        Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_large)))
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight(0.5f)
+                .padding(horizontal = dimensionResource(id = R.dimen.padding_large)),
+            shape = RoundedCornerShape(dimensionResource(id = R.dimen.padding_medium)),
+            elevation = CardDefaults.cardElevation(dimensionResource(id = R.dimen.padding_xsmall)),
+            colors = CardDefaults.cardColors(Yellow20),
+            onClick = {
+                if (appUiState.clickCountEnabled) {
+                    appViewModel.onScreenClicked()
+                }
+            }
+        ) {
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "CLICK HERE",
+                )
+            }
+        }
+    }
     if (appUiState.gameCompleted) {
-
         AlertDialog(
-            onDismissRequest = {
-//                appViewModel.resetTimer()
-            },
+            onDismissRequest = {  },
             title = {
                 Text(text = stringResource(id = R.string.alert_title))
             },
@@ -280,7 +313,8 @@ fun ChallengeScreen(
                             else -> { prefs.getRecordMarathonOne() }
                         },
                         appUiState.newRecord
-                    )
+                    ),
+                    fontSize = 16.sp
                 )
             },
             confirmButton = {
@@ -326,45 +360,89 @@ fun ChallengeScreen(
             }
         }
     }
+}
+
+@Composable
+fun RecordsScreen() {
+    val prefs = SharedPrefs(LocalContext.current)
 
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text(text = "challenge screen")
-        Text(text = appUiState.currentGame)
-        Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_medium)))
         Text(
-            text = stringResource(id = appUiState.preStartTimerWords)
+            text = stringResource(id = R.string.records_hall_title),
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Bold,
+            fontFamily = FontFamily.Monospace,
         )
         Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_medium)))
-        Text(
-            text = appUiState.timerSeconds.toString()
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth(0.8f),
+            horizontalArrangement = Arrangement.SpaceAround
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = stringResource(id = R.string.sprint),
+                    fontSize = 16.sp
+                )
+                Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_small)))
+                Text(text = prefs.getRecordSprintOne().toString())
+                Text(text = prefs.getRecordSprintTwo().toString())
+                Text(text = prefs.getRecordSprintThree().toString())
+                Text(text = prefs.getRecordSprintFour().toString())
+                Text(text = prefs.getRecordSprintFive().toString())
+            }
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = stringResource(id = R.string.medium),
+                    fontSize = 16.sp
+                )
+                Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_small)))
+                Text(text = prefs.getRecordMediumOne().toString())
+                Text(text = prefs.getRecordMediumTwo().toString())
+                Text(text = prefs.getRecordMediumThree().toString())
+                Text(text = prefs.getRecordMediumFour().toString())
+                Text(text = prefs.getRecordMediumFive().toString())
+            }
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = stringResource(id = R.string.marathon),
+                    fontSize = 16.sp
+                )
+                Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_small)))
+                Text(text = prefs.getRecordMarathonOne().toString())
+                Text(text = prefs.getRecordMarathonTwo().toString())
+                Text(text = prefs.getRecordMarathonThree().toString())
+                Text(text = prefs.getRecordMarathonFour().toString())
+                Text(text = prefs.getRecordMarathonFive().toString())
+            }
+        }
         Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_medium)))
-        Text(
-            text = appUiState.clickCount.toString()
-        )
-        Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_medium)))
-        Text(
-            modifier = Modifier
-                .clickable {
-                    if (appUiState.clickCountEnabled) {
-                        appViewModel.onScreenClicked()
-                    }
-                },
-            text = "CLICK ME"
-        )
     }
 }
 
 @Composable
-fun RecordsScreen() {
-    Text(text = "records screen")
-}
-
-@Composable
 fun AboutScreen() {
-    Text(text = "about screen")
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            modifier = Modifier.fillMaxWidth(0.75f),
+            text = stringResource(id = R.string.about_title),
+            textAlign = TextAlign.Center,
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold,
+            fontFamily = FontFamily.Monospace
+        )
+    }
 }

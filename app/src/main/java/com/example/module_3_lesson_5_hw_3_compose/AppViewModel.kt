@@ -21,7 +21,6 @@ class AppViewModel() : ViewModel() {
 
     fun preStartTimer(until: Long) {
         resetGame()
-
         timer = object : DisposableSubscriber<Long>() {
             override fun onNext(t: Long?) {
                 var remainingSeconds = 0L
@@ -50,19 +49,16 @@ class AppViewModel() : ViewModel() {
                 }
                 Log.d("MYLOG", "preStart timer : $remainingSeconds")
             }
-
             override fun onError(t: Throwable?) {}
             override fun onComplete() {
                 Log.d("MYLOG", "preStart DONE :)")
             }
-
         }
         Flowable.intervalRange(0, 3, 0, 2, TimeUnit.SECONDS)
             .observeOn(Schedulers.io())
             .subscribeOn(AndroidSchedulers.mainThread())
             .subscribe(timer)
     }
-
     private fun startGameTimer(until: Long) {
         timer = object : DisposableSubscriber<Long>() {
             override fun onNext(t: Long?) {
@@ -73,11 +69,8 @@ class AppViewModel() : ViewModel() {
                 _uiState.update { currentState ->
                     currentState.copy(timerSeconds = remainingSeconds)
                 }
-
-
                 Log.d("MYLOG", "main timer : $remainingSeconds")
             }
-
             override fun onError(t: Throwable?) {}
             override fun onComplete() {
                 Log.d("MYLOG", "main timer DONE :)")
@@ -89,27 +82,22 @@ class AppViewModel() : ViewModel() {
                     )
                 }
             }
-
         }
         Flowable.intervalRange(0, until + 1, 0, 1, TimeUnit.SECONDS)
             .observeOn(Schedulers.io())
             .subscribeOn(AndroidSchedulers.mainThread())
             .subscribe(timer)
     }
-
-
     private fun stopTimer() {
         if (::timer.isInitialized) {
             timer.dispose()
         }
     }
-
     fun onScreenClicked() {
         _uiState.update { currentState ->
             currentState.copy(clickCount = currentState.clickCount + 1)
         }
     }
-
     fun resetGame() {
         stopTimer()
         _uiState.value = AppUiState(
@@ -121,17 +109,9 @@ class AppViewModel() : ViewModel() {
             newRecord = ""
         )
     }
-
     fun newRecord() {
         _uiState.update { currentState ->
-            currentState.copy(newRecord = "Congratulations! New record!")
+            currentState.copy(newRecord = "New record! Congratulations!")
         }
     }
-
-//    fun gameCompletedReset() {
-//        _uiState.update { currentState ->
-//            currentState.copy()
-//        }
-//    }
-
 }
