@@ -6,5 +6,6 @@ data class AppUiState(
     val clickCount: Int = 0,
     val clickCountEnabled: Boolean = false,
     val gameCompleted: Boolean = false,
-    val currentGame: String = ""
+    val currentGame: String = "",
+    val newRecord: String = ""
 )

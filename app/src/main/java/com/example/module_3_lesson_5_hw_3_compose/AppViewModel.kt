@@ -110,14 +110,22 @@ class AppViewModel() : ViewModel() {
         }
     }
 
-    private fun resetGame() {
+    fun resetGame() {
         stopTimer()
         _uiState.value = AppUiState(
             timerSeconds = 0L,
             preStartTimerWords = R.string.empty,
             clickCount = 0,
-            clickCountEnabled = false
+            clickCountEnabled = false,
+            gameCompleted = false,
+            newRecord = ""
         )
+    }
+
+    fun newRecord() {
+        _uiState.update { currentState ->
+            currentState.copy(newRecord = "Congratulations! New record!")
+        }
     }
 
 //    fun gameCompletedReset() {

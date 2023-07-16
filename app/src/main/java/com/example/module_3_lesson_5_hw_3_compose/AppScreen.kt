@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
@@ -72,7 +73,12 @@ fun MyApp(
                 )
             }
             composable(ScreenRoutes.ChallengeScreen.route) {
-                ChallengeScreen(appViewModel = appViewModel)
+                ChallengeScreen(
+                    appViewModel = appViewModel,
+                    onOkClicked = {
+                        navController.navigate(ScreenRoutes.NewChallengeScreen.route)
+                    }
+                )
             }
             composable(ScreenRoutes.RecordsScreen.route) {
                 RecordsScreen()
@@ -246,15 +252,52 @@ fun NewChallengeScreen(
 
 @Composable
 fun ChallengeScreen(
-    appViewModel: AppViewModel
+    appViewModel: AppViewModel,
+    onOkClicked: () -> Unit
 ) {
     val appUiState by appViewModel.uiState.collectAsState()
 
     val prefs = SharedPrefs(LocalContext.current)
 
     if (appUiState.gameCompleted) {
+
+        AlertDialog(
+            onDismissRequest = {
+//                appViewModel.resetTimer()
+            },
+            title = {
+                Text(text = stringResource(id = R.string.alert_title))
+            },
+            text = {
+                Text(
+                    stringResource(
+                        id = R.string.alert_text,
+                        appUiState.currentGame,
+                        appUiState.clickCount,
+                        when (appUiState.currentGame) {
+                            "Sprint" -> { prefs.getRecordSprintOne() }
+                            "Medium" -> { prefs.getRecordMediumOne() }
+                            else -> { prefs.getRecordMarathonOne() }
+                        },
+                        appUiState.newRecord
+                    )
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        appViewModel.resetGame()
+                        onOkClicked()
+                    }
+                ) {
+                    Text(stringResource(id = R.string.alert_button))
+                }
+            }
+        )
+
         if (appUiState.currentGame == "Sprint") {
             if (appUiState.clickCount > prefs.getRecordSprintOne()) {
+                appViewModel.newRecord()
                 prefs.setRecordSprintFive(prefs.getRecordSprintFour())
                 prefs.setRecordSprintFour(prefs.getRecordSprintThree())
                 prefs.setRecordSprintThree(prefs.getRecordSprintTwo())
@@ -264,6 +307,7 @@ fun ChallengeScreen(
         }
         if (appUiState.currentGame == "Medium") {
             if (appUiState.clickCount > prefs.getRecordMediumOne()) {
+                appViewModel.newRecord()
                 prefs.setRecordMediumFive(prefs.getRecordMediumFour())
                 prefs.setRecordMediumFour(prefs.getRecordMediumThree())
                 prefs.setRecordMediumThree(prefs.getRecordMediumTwo())
@@ -273,6 +317,7 @@ fun ChallengeScreen(
         }
         if (appUiState.currentGame == "Marathon") {
             if (appUiState.clickCount > prefs.getRecordMarathonOne()) {
+                appViewModel.newRecord()
                 prefs.setRecordMarathonFive(prefs.getRecordMarathonFour())
                 prefs.setRecordMarathonFour(prefs.getRecordMarathonThree())
                 prefs.setRecordMarathonThree(prefs.getRecordMarathonTwo())
